@@ -845,6 +845,23 @@ body {
     background: var(--dark-bg);
     padding: 3rem 0 1rem;
     border-top: 1px solid rgba(99, 102, 241, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.footer::before {
+    content: "D";
+    position: absolute;
+    right: -40px;
+    bottom: -80px;
+    font-size: 320px;
+    font-weight: 800;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.04);
+    letter-spacing: -10px;
+    transform: rotate(-12deg);
+    user-select: none;
+    pointer-events: none;
 }
 
 .footer-content {
