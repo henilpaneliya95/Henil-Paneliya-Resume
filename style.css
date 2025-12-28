@@ -300,6 +300,7 @@ body {
     border-radius: 50%;
     animation: spin-loader 1s linear infinite;
     z-index: 5;
+    display: none;
 }
 
 .img-loader.hidden {
@@ -336,6 +337,28 @@ body {
 
 .lazy-img.loaded {
     opacity: 1;
+}
+
+/* Ensure loaders and errors position correctly inside project/about images */
+.project-image .img-loader,
+.about-image .img-loader,
+.project-image .img-error,
+.about-image .img-error {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.project-image .img-loader,
+.about-image .img-loader {
+    width: 40px;
+    height: 40px;
+}
+
+.project-image .img-error i,
+.about-image .img-error i {
+    font-size: 2.5rem;
 }
 
 @keyframes spin-loader {

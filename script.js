@@ -241,46 +241,41 @@ document.querySelectorAll('img').forEach(img => {
 // Image Loading with Error Handling
 function handleImageLoad() {
     const lazyImages = document.querySelectorAll('.lazy-img');
-    
+    const placeholder = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+
     lazyImages.forEach(img => {
         const container = img.closest('.image-container, .project-image, .about-image');
         const loader = container?.querySelector('.img-loader');
         const errorDiv = container?.querySelector('.img-error');
         const imgSrc = img.getAttribute('data-src') || img.getAttribute('src');
-        
-        // Show loader initially
+
+        // Ensure placeholder is set before loading
+        img.src = placeholder;
+
         if (loader) loader.style.display = 'block';
         if (errorDiv) errorDiv.style.display = 'none';
-        
-        // Create new image to test loading
+
         const testImg = new Image();
-        
+
         testImg.onload = function() {
-            // Image loaded successfully
             img.src = imgSrc;
             img.classList.add('loaded');
             if (loader) loader.style.display = 'none';
         };
-        
+
         testImg.onerror = function() {
-            // Image failed to load - show error
             if (loader) loader.style.display = 'none';
-            if (errorDiv) {
-                errorDiv.style.display = 'block';
-            }
+            if (errorDiv) errorDiv.style.display = 'block';
             img.style.opacity = '0';
         };
-        
-        // Start loading
+
         testImg.src = imgSrc;
-        
+
         // Timeout fallback (10 seconds)
         setTimeout(() => {
             if (!img.classList.contains('loaded')) {
                 if (loader) loader.style.display = 'none';
-                if (errorDiv) {
-                    errorDiv.style.display = 'block';
-                }
+                if (errorDiv) errorDiv.style.display = 'block';
                 img.style.opacity = '0';
             }
         }, 10000);
