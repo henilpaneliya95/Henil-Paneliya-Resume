@@ -248,6 +248,40 @@ document.querySelectorAll('img').forEach(img => {
         e.preventDefault();
     });
 });
+
+function handleProfileImageLoad() {
+    const profileImg = document.querySelector('.profile-img');
+    if (!profileImg) return;
+
+    const container = profileImg.closest('.image-container');
+    const loader = container?.querySelector('.img-loader');
+    const errorDiv = container?.querySelector('.img-error');
+
+    container?.classList.add('loading');
+    if (loader) loader.style.display = 'block';
+    if (errorDiv) errorDiv.style.display = 'none';
+
+    const revealProfile = () => {
+        container?.classList.remove('loading');
+        if (loader) loader.style.display = 'none';
+        profileImg.style.opacity = '1';
+    };
+
+    const failProfile = () => {
+        container?.classList.remove('loading');
+        if (loader) loader.style.display = 'none';
+        if (errorDiv) errorDiv.style.display = 'block';
+    };
+
+    if (profileImg.complete && profileImg.naturalWidth > 0) {
+        revealProfile();
+        return;
+    }
+
+    profileImg.addEventListener('load', revealProfile, { once: true });
+    profileImg.addEventListener('error', failProfile, { once: true });
+}
+
 // Image Loading with Error Handling
 function handleImageLoad() {
     const lazyImages = document.querySelectorAll('.lazy-img');
@@ -316,4 +350,7 @@ function handleImageLoad() {
 }
 
 // Run image loader when DOM is ready
-document.addEventListener('DOMContentLoaded', handleImageLoad);
+document.addEventListener('DOMContentLoaded', () => {
+    handleProfileImageLoad();
+    handleImageLoad();
+});
