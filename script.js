@@ -292,9 +292,14 @@ function handleImageLoad() {
         const container = img.closest('.image-container, .project-image, .about-image');
         const loader = container?.querySelector('.img-loader');
         const errorDiv = container?.querySelector('.img-error');
-        const imgSrc = img.getAttribute('data-src') || img.getAttribute('src');
+        const dataSrc = img.getAttribute('data-src');
+        const currentSrc = img.getAttribute('src');
+        const imgSrc = dataSrc || currentSrc;
+        const usesPlaceholder = currentSrc === placeholder;
         const loadStartedAt = Date.now();
         let isSettled = false;
+
+        if (!imgSrc) return;
 
         const clearLoadingState = (callback) => {
             if (isSettled) return;
@@ -310,8 +315,20 @@ function handleImageLoad() {
             }, waitTime);
         };
 
-        // Ensure placeholder is set before loading
-        img.src = placeholder;
+        // Skip eager loaded images so they remain visible even if JS runs late.
+        if (!usesPlaceholder && img.complete && img.naturalWidth > 0) {
+            if (loader) loader.style.display = 'none';
+            if (errorDiv) errorDiv.style.display = 'none';
+            container?.classList.remove('loading');
+            img.classList.add('loaded');
+            img.style.opacity = '1';
+            return;
+        }
+
+        // Only apply placeholder when the markup already uses placeholder lazy mode.
+        if (usesPlaceholder) {
+            img.src = placeholder;
+        }
 
         container?.classList.add('loading');
         if (loader) loader.style.display = 'block';
@@ -325,6 +342,7 @@ function handleImageLoad() {
             img.src = imgSrc;
             clearLoadingState(() => {
                 img.classList.add('loaded');
+                img.style.opacity = '1';
             });
         };
 
