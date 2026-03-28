@@ -1,4 +1,6 @@
 // Typing Effect
+document.body.classList.add('preloading');
+
 const typingTexts = [
     'Web Developer',
     'Data Science Enthusiast',
@@ -230,6 +232,14 @@ projectCards.forEach(card => {
 // Initialize animations on page load
 window.addEventListener('load', () => {
     document.body.classList.add('loaded');
+
+    const preloader = document.getElementById('pagePreloader');
+    if (preloader) {
+        preloader.classList.add('hidden');
+        setTimeout(() => preloader.remove(), 500);
+    }
+
+    document.body.classList.remove('preloading');
 });
 
 // Prevent right-click on images (optional)
@@ -242,31 +252,53 @@ document.querySelectorAll('img').forEach(img => {
 function handleImageLoad() {
     const lazyImages = document.querySelectorAll('.lazy-img');
     const placeholder = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+    const minLoaderTime = 250;
 
     lazyImages.forEach(img => {
         const container = img.closest('.image-container, .project-image, .about-image');
         const loader = container?.querySelector('.img-loader');
         const errorDiv = container?.querySelector('.img-error');
         const imgSrc = img.getAttribute('data-src') || img.getAttribute('src');
+        const loadStartedAt = Date.now();
+        let isSettled = false;
+
+        const clearLoadingState = (callback) => {
+            if (isSettled) return;
+            isSettled = true;
+
+            const elapsed = Date.now() - loadStartedAt;
+            const waitTime = Math.max(0, minLoaderTime - elapsed);
+
+            setTimeout(() => {
+                if (loader) loader.style.display = 'none';
+                container?.classList.remove('loading');
+                if (callback) callback();
+            }, waitTime);
+        };
 
         // Ensure placeholder is set before loading
         img.src = placeholder;
 
+        container?.classList.add('loading');
         if (loader) loader.style.display = 'block';
         if (errorDiv) errorDiv.style.display = 'none';
+        img.classList.remove('loaded');
+        img.style.opacity = '0';
 
         const testImg = new Image();
 
         testImg.onload = function() {
             img.src = imgSrc;
-            img.classList.add('loaded');
-            if (loader) loader.style.display = 'none';
+            clearLoadingState(() => {
+                img.classList.add('loaded');
+            });
         };
 
         testImg.onerror = function() {
-            if (loader) loader.style.display = 'none';
-            if (errorDiv) errorDiv.style.display = 'block';
-            img.style.opacity = '0';
+            clearLoadingState(() => {
+                if (errorDiv) errorDiv.style.display = 'block';
+                img.style.opacity = '0';
+            });
         };
 
         testImg.src = imgSrc;
@@ -274,9 +306,10 @@ function handleImageLoad() {
         // Timeout fallback (10 seconds)
         setTimeout(() => {
             if (!img.classList.contains('loaded')) {
-                if (loader) loader.style.display = 'none';
-                if (errorDiv) errorDiv.style.display = 'block';
-                img.style.opacity = '0';
+                clearLoadingState(() => {
+                    if (errorDiv) errorDiv.style.display = 'block';
+                    img.style.opacity = '0';
+                });
             }
         }, 10000);
     });
