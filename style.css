@@ -400,6 +400,11 @@ body.preloading {
     opacity: 1;
 }
 
+/* Fallback: if image has a real source, keep it visible even when JS lazy class update is delayed/cached */
+.lazy-img[src]:not([src^="data:image/gif"]) {
+    opacity: 1;
+}
+
 /* Ensure loaders and errors position correctly inside project/about images */
 .project-image .img-loader,
 .about-image .img-loader,
